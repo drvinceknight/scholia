@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <!-- Marginal annotation bracket -->
+  <path d="M 8 3 L 4 3 L 4 21 L 8 21"
+        stroke="#ffffff" stroke-width="2" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- Mark / checkmark -->
+  <path d="M 10 13 L 13.5 17 L 20 7"
+        stroke="#ffffff" stroke-width="2" fill="none"
+        stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

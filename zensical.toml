@@ -1,0 +1,53 @@
+[project]
+site_name = "scholia"
+
+nav = [
+  { "Home" = "index.md" },
+  { "Tutorial" = [
+    { "Getting started" = "tutorial/index.md" },
+  ]},
+  { "How-To Guides" = [
+    { "Initialise a directory" = "how-to/init-a-dir.md" },
+    { "Initialise a named directory" = "how-to/init-a-named-dir.md" },
+    { "Write a scheme" = "how-to/write-a-scheme.md" },
+    { "Sync scheme headers" = "how-to/update-a-student.md" },
+    { "Mark a student" = "how-to/mark-a-student.md" },
+    { "Generate marks and feedback" = "how-to/mark.md" },
+    { "Interpret the charts" = "how-to/interpret-charts.md" },
+    { "Use the Python API" = "how-to/use-this-framework.md" },
+  ]},
+  { "Discussion" = [
+    { "Marking approach" = "discussion/marking-approach.md" },
+    { "Feedback" = "discussion/feedback.md" },
+    { "Professor Schmidt" = "discussion/professor-schmidt.md" },
+  ]},
+  { "Reference" = [
+    { "API" = "reference/api.md" },
+  ]},
+]
+
+[project.theme]
+logo = "img/logo.svg"
+favicon = "img/logo.svg"
+features = [
+  "content.code.copy",
+  "content.tabs.link",
+  "navigation.sections",
+  "navigation.top",
+]
+
+[project.markdown_extensions.pymdownx.highlight]
+anchor_linenums = true
+
+[project.markdown_extensions.pymdownx.superfences]
+
+[project.markdown_extensions.pymdownx.tabbed]
+alternate_style = true
+
+[project.plugins.mkdocstrings.handlers.python]
+paths = ["src"]
+
+[project.plugins.mkdocstrings.handlers.python.options]
+docstring_style = "google"
+show_source = true
+show_root_heading = true
