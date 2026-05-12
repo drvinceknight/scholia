@@ -71,9 +71,7 @@ class Scheme:
         """Return question names in definition order."""
         return list(self.questions.keys())
 
-    def get_category(
-        self, question_name: str, category_id: str
-    ) -> Category | None:
+    def get_category(self, question_name: str, category_id: str) -> Category | None:
         """Return the category, or ``None`` if not found."""
         question = self.questions.get(question_name)
         if question is None:

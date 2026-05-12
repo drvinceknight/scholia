@@ -17,9 +17,7 @@ from scholia.scheme import Scheme
 from scholia.students import Students
 
 
-def _generate_distribution_chart(
-    all_totals: list[int], charts_dir: Path
-) -> list[str]:
+def _generate_distribution_chart(all_totals: list[int], charts_dir: Path) -> list[str]:
     fig, ax = plt.subplots()
     ax.hist(all_totals, bins="auto", edgecolor="black")
     ax.set_xlabel("Total marks")
@@ -27,12 +25,15 @@ def _generate_distribution_chart(
     ax.set_title("Mark distribution")
     fig.savefig(charts_dir / "distribution.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
-    return ["## Mark distribution", "", "![Mark distribution](charts/distribution.png)", ""]
+    return [
+        "## Mark distribution",
+        "",
+        "![Mark distribution](charts/distribution.png)",
+        "",
+    ]
 
 
-def _generate_cumulative_chart(
-    all_totals: list[int], charts_dir: Path
-) -> list[str]:
+def _generate_cumulative_chart(all_totals: list[int], charts_dir: Path) -> list[str]:
     sorted_totals = sorted(all_totals)
     num_students = len(sorted_totals)
     proportions = [(idx + 1) / num_students for idx in range(num_students)]
@@ -63,7 +64,12 @@ def _generate_boxplot_chart(
     ax.set_title("Marks per question")
     fig.savefig(charts_dir / "boxplot.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
-    return ["## Marks per question", "", "![Marks per question](charts/boxplot.png)", ""]
+    return [
+        "## Marks per question",
+        "",
+        "![Marks per question](charts/boxplot.png)",
+        "",
+    ]
 
 
 def _generate_correlation_chart(
@@ -147,7 +153,11 @@ def generate_summary(
         if total is not None:
             all_totals.append(total)
             complete_mark_rows.append(
-                [m for q in scheme_question_names if (m := question_marks[q]) is not None]
+                [
+                    m
+                    for q in scheme_question_names
+                    if (m := question_marks[q]) is not None
+                ]
             )
 
         for question_name in scheme_question_names:

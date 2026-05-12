@@ -6,9 +6,7 @@ from scholia.scheme import Scheme
 from scholia.students import Student
 
 
-def compute_question_marks(
-    student: Student, scheme: Scheme
-) -> dict[str, int | None]:
+def compute_question_marks(student: Student, scheme: Scheme) -> dict[str, int | None]:
     """Return each question's mark for a student.
 
     Returns ``None`` for any question with no valid category assigned.
