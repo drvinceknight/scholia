@@ -1,6 +1,6 @@
 # Acknowledgement: Professor Karl Schmidt
 
-The ideas behind scholia come from a talk given by
+The ideas behind `scholia` come from a talk given by
 [Professor Karl Schmidt](https://profiles.cardiff.ac.uk/staff/schmidtkm)
 of the School of Mathematics at Cardiff University. In that talk Karl
 described his approach to category-based marking and demonstrated the
