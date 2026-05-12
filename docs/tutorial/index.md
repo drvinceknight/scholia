@@ -7,7 +7,8 @@ summary charts.
 
 ## Install scholia
 
-Install scholia and its dependencies:
+Assuming you have [uv](https://docs.astral.sh/uv/) installed:
+install scholia and its dependencies:
 
 ```bash
 uv add scholia
@@ -18,7 +19,7 @@ uv add scholia
 Create the `scholia/` directory and its two starting files:
 
 ```bash
-scholia init
+uv run scholia init
 ```
 
 This produces:
@@ -66,7 +67,7 @@ q1(b):
 Run:
 
 ```bash
-scholia update
+uv run scholia update
 ```
 
 Scholia reads the question names from `scheme.yaml` and adds the

@@ -19,7 +19,7 @@ nav = [
   { "Discussion" = [
     { "Marking approach" = "discussion/marking-approach.md" },
     { "Feedback" = "discussion/feedback.md" },
-    { "Professor Schmidt" = "discussion/professor-schmidt.md" },
+    { "The idea" = "discussion/the-idea.md" },
   ]},
   { "Reference" = [
     { "API" = "reference/api.md" },

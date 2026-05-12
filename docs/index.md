@@ -24,7 +24,7 @@ for the entire cohort is regenerated automatically.
 
 ## What scholia produces
 
-Scholia organises a piece of assessment into three artefacts, all stored
+Scholia organises a piece of assessment into a collection of artefacts, all stored
 in a `scholia/` directory:
 
 - **`scheme.yaml`**: the marking scheme. For each question, a set of
