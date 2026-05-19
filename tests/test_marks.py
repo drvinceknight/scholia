@@ -1,5 +1,6 @@
 import pytest
 
+from scholia.exceptions import CategoryNotInSchemeError
 from scholia.marks import compute_question_marks, compute_total_marks
 from scholia.scheme import Scheme
 from scholia.students import Student
@@ -47,8 +48,20 @@ def test_compute_question_marks_incomplete(scheme, incomplete_student):
 
 
 def test_compute_question_marks_unknown_category(scheme, unknown_category_student):
-    marks = compute_question_marks(unknown_category_student, scheme)
-    assert marks["q1(a)"] is None
+    with pytest.raises(CategoryNotInSchemeError) as exc_info:
+        compute_question_marks(unknown_category_student, scheme)
+    error = exc_info.value
+    assert error.student_id == "s003"
+    assert error.question_name == "q1(a)"
+    assert error.category_id == "z"
+    assert sorted(error.valid_categories) == ["a", "b", "c"]
+
+
+def test_compute_question_marks_unknown_category_message(
+    scheme, unknown_category_student
+):
+    with pytest.raises(CategoryNotInSchemeError, match="'z'"):
+        compute_question_marks(unknown_category_student, scheme)
 
 
 def test_compute_question_marks_zero_marks(scheme):
@@ -79,7 +92,8 @@ def test_compute_total_marks_incomplete(scheme, incomplete_student):
 
 
 def test_compute_total_marks_unknown_category(scheme, unknown_category_student):
-    assert compute_total_marks(unknown_category_student, scheme) is None
+    with pytest.raises(CategoryNotInSchemeError):
+        compute_total_marks(unknown_category_student, scheme)
 
 
 def test_compute_total_marks_empty_scheme():
