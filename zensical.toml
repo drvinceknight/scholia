@@ -20,6 +20,7 @@ nav = [
     { "Marking approach" = "discussion/marking-approach.md" },
     { "Feedback" = "discussion/feedback.md" },
     { "The idea" = "discussion/the-idea.md" },
+    { "Why am I getting CategoryNotInSchemeError?" = "discussion/why-am-i-getting-category-not-in-scheme-error.md" },
   ]},
   { "Reference" = [
     { "API" = "reference/api.md" },
