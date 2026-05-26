@@ -37,7 +37,7 @@ def test_full_workflow_sorted_headers(tmp_path, monkeypatch):
 
     assert runner.invoke(app, ["update"]).exit_code == 0
     header = (tmp_path / "scholia" / "students.csv").read_text().splitlines()[0]
-    assert header == "student_id,q1,q2"
+    assert header == "student_id,q1,q2,note"
 
     with open(tmp_path / "scholia" / "students.csv", "w", newline="") as file_handle:
         writer = csv.DictWriter(file_handle, fieldnames=["student_id", "q1", "q2"])
@@ -78,4 +78,4 @@ def test_full_workflow_preserve_order(tmp_path, monkeypatch):
 
     assert runner.invoke(app, ["update", "--preserve-order"]).exit_code == 0
     header = (tmp_path / "scholia" / "students.csv").read_text().splitlines()[0]
-    assert header == "student_id,q2,q1"
+    assert header == "student_id,q2,q1,note"

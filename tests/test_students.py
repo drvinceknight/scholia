@@ -117,6 +117,62 @@ def test_sync_headers_appends_extra_columns(students_path):
     assert students.question_names == ["q1(a)", "q1(b)"]
 
 
+def test_load_note_column(tmp_path):
+    path = tmp_path / "students.csv"
+    path.write_text('student_id,q1,note\ns001,a,"Good work, overall."\n')
+    students = Students.load(path)
+    assert students.students[0].note == "Good work, overall."
+    assert students.question_names == ["q1"]
+
+
+def test_load_missing_note_column(tmp_path):
+    path = tmp_path / "students.csv"
+    path.write_text("student_id,q1\ns001,a\n")
+    students = Students.load(path)
+    assert students.students[0].note == ""
+
+
+def test_save_includes_note_column(tmp_path):
+    students = Students(
+        students=[Student(student_id="s001", note="Excellent effort.")],
+        question_names=[],
+    )
+    out_path = tmp_path / "out.csv"
+    students.save(out_path)
+    content = out_path.read_text()
+    assert "note" in content
+    assert "Excellent effort." in content
+
+
+def test_save_roundtrip_with_note(tmp_path):
+    students = Students(
+        students=[
+            Student(
+                student_id="s001",
+                assignments={"q1": "a"},
+                note="Great effort.",
+            )
+        ],
+        question_names=["q1"],
+    )
+    out_path = tmp_path / "out.csv"
+    students.save(out_path)
+    loaded = Students.load(out_path)
+    assert loaded.students[0].note == "Great effort."
+
+
+def test_save_note_with_commas_and_quotes(tmp_path):
+    note = 'Said "I ran out of time," but work was strong.'
+    students = Students(
+        students=[Student(student_id="s001", note=note)],
+        question_names=[],
+    )
+    out_path = tmp_path / "out.csv"
+    students.save(out_path)
+    loaded = Students.load(out_path)
+    assert loaded.students[0].note == note
+
+
 def test_sync_headers_no_students(scheme_path):
     from scholia.scheme import Scheme
 

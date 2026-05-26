@@ -37,6 +37,9 @@ def generate_student_feedback(
         else:
             lines += ["**Marks:** not yet marked", ""]
 
+    if student.note:
+        lines += ["## Note", "", student.note, ""]
+
     (feedback_dir / f"{student.student_id}.md").write_text("\n".join(lines))
 
 
