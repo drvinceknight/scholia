@@ -30,16 +30,16 @@ def init(
     scheme_path = scholia_dir / SCHEME_FILENAME
     if not scheme_path.exists():
         Scheme().save(scheme_path)
-        typer.echo(f"Created {scheme_path}")
+        typer.echo(f"Created {scheme_path.as_posix()}")
     else:
-        typer.echo(f"{scheme_path} already exists, skipping.")
+        typer.echo(f"{scheme_path.as_posix()} already exists, skipping.")
 
     students_path = scholia_dir / STUDENTS_FILENAME
     if not students_path.exists():
         students_path.write_text(_INITIAL_STUDENTS_CONTENT)
-        typer.echo(f"Created {students_path}")
+        typer.echo(f"Created {students_path.as_posix()}")
     else:
-        typer.echo(f"{students_path} already exists, skipping.")
+        typer.echo(f"{students_path.as_posix()} already exists, skipping.")
 
 
 @app.command()
@@ -67,7 +67,7 @@ def update(
 
     students.sync_headers(question_names)
     students.save(students_path)
-    typer.echo(f"Updated headers in {students_path}")
+    typer.echo(f"Updated headers in {students_path.as_posix()}")
 
 
 @app.command()
@@ -86,13 +86,13 @@ def mark(
 
     feedback_dir = scholia_dir / "feedback"
     generate_all_feedback(students, scheme, feedback_dir)
-    typer.echo(f"Generated feedback in {feedback_dir}/")
+    typer.echo(f"Generated feedback in {feedback_dir.as_posix()}/")
 
     marks_csv_path = scholia_dir / "marks.csv"
     generate_marks_csv(students, scheme, marks_csv_path)
-    typer.echo(f"Generated marks at {marks_csv_path}")
+    typer.echo(f"Generated marks at {marks_csv_path.as_posix()}")
 
     summary_path = scholia_dir / "summary.md"
     charts_dir = scholia_dir / "charts"
     generate_summary(students, scheme, summary_path, charts_dir)
-    typer.echo(f"Generated summary at {summary_path}")
+    typer.echo(f"Generated summary at {summary_path.as_posix()}")
