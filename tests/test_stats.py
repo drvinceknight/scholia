@@ -78,8 +78,8 @@ def test_summary_two_students_all_charts(tmp_path, scheme, two_student_roster):
     content = output.read_text()
     assert "## Mark distribution" in content
     assert "## Cumulative mark distribution" in content
-    assert "## Marks per question" in content
-    assert "## Question mark correlations" in content
+    assert "## Marks per criterion" in content
+    assert "## Criterion mark correlations" in content
     assert (charts_dir / "distribution.png").exists()
     assert (charts_dir / "cumulative.png").exists()
     assert (charts_dir / "boxplot.png").exists()

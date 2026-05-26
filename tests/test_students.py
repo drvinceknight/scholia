@@ -3,6 +3,12 @@ import pytest
 from scholia.students import STUDENTS_FILENAME, Student, Students
 
 
+def _make_csv(names: list[str], encoding: str) -> bytes:
+    """Build a minimal students CSV encoded."""
+    rows = ["student_id,q1"] + [f"{name},a" for name in names]
+    return "\n".join(rows).encode(encoding)
+
+
 def test_load_students(students_path):
     students = Students.load(students_path)
     assert len(students.students) == 2
@@ -118,3 +124,146 @@ def test_sync_headers_no_students(scheme_path):
     students = Students(students=[], question_names=[])
     students.sync_headers(scheme.question_names())
     assert students.question_names == scheme.question_names()
+
+
+# ---------------------------------------------------------------------------
+# Encoding tests
+# ---------------------------------------------------------------------------
+
+# UTF-8 (plain and with Excel BOM)
+
+
+def test_load_utf8_bom(tmp_path):
+    path = tmp_path / "students.csv"
+    path.write_bytes("student_id,q1\nÉlodie,a\nJoão,b\n".encode("utf-8-sig"))
+    students = Students.load(path)
+    assert students.students[0].student_id == "Élodie"
+    assert students.students[1].student_id == "João"
+
+
+@pytest.mark.parametrize(
+    "names,label",
+    [
+        (
+            ["Émile Zola", "Renée Dupont", "François Trémeau", "Héloïse Bernard"],
+            "western european (french)",
+        ),
+        (
+            ["José García", "Ángela López", "Martínez Pérez", "Núñez Rodríguez"],
+            "western european (spanish)",
+        ),
+        (
+            ["Müller Ångström", "Björn Eriksson", "Söderström Västra"],
+            "western european (swedish/german)",
+        ),
+        (
+            ["Władysław Reymont", "Józef Piłsudski", "Małgorzata Nowak"],
+            "eastern european (polish)",
+        ),
+        (
+            ["Αλέξανδρος Παπαδόπουλος", "Ελένη Κωνσταντίνου", "Νίκος Παπαδάκης"],
+            "greek",
+        ),
+        (
+            ["Мария Иванова", "Александр Петров", "Наталья Кузнецова"],
+            "cyrillic",
+        ),
+        (
+            ["محمد علي", "فاطمة الزهراء", "أحمد إبراهيم"],
+            "arabic",
+        ),
+        (
+            ["王小明", "李华", "张伟", "陈静"],
+            "chinese",
+        ),
+        (
+            ["田中太郎", "山田花子", "鈴木一郎"],
+            "japanese",
+        ),
+        (
+            ["Émile Zola", "Αλέξανδρος", "王小明", "محمد علي", "Мария"],
+            "mixed scripts",
+        ),
+    ],
+)
+def test_load_utf8_scripts(tmp_path, names, label):
+    path = tmp_path / "students.csv"
+    path.write_bytes(_make_csv(names, "utf-8"))
+    students = Students.load(path)
+    assert [s.student_id for s in students.students] == names
+
+
+# Legacy single-byte encodings (non-UTF-8 fallback via charset-normalizer)
+
+
+def test_load_mac_roman(tmp_path):
+    # The four names that triggered the original UnicodeDecodeError.
+    # Mac Roman bytes: 0x83=É, 0x89=â, 0x8e=é, 0xd5=’ (right single quote).
+    path = tmp_path / "students.csv"
+    path.write_bytes(
+        b"student_id,q1\n"
+        b"Cathy O\xd5Neil,a\n"
+        b"\x83milie du Ch\x89telet,b\n"
+        b"\x83variste Galois,c\n"
+        b"Henri Poincar\x8e,a\n"
+    )
+    students = Students.load(path)
+    ids = [s.student_id for s in students.students]
+    assert ids[0] == "Cathy O’Neil"
+    assert ids[1] == "Émilie du Châtelet"
+    assert ids[2] == "Évariste Galois"
+    assert ids[3] == "Henri Poincaré"
+
+
+def test_load_windows_1252(tmp_path):
+    # Windows-1252 uses 0xA0-0xFF for Latin accented characters. We use only
+    # characters whose byte values are identical in cp1252 and cp1250 (e.g.
+    # é=0xE9, ü=0xFC, ç=0xE7) so the test is robust regardless of which of
+    # those two near-identical encodings charset-normalizer selects.
+    # Avoided: è (0xE8=č in cp1250), à (0xE0=ŕ), ø (0xF8=ř), ñ (0xF1=ń).
+    names = [
+        "José García",
+        "François Dupont",
+        "Cédric Moreau",
+        "Müller Hans",
+        "Björn Eriksson",
+        "Ángela Martínez",
+        "Renée Bélanger",
+        "Véronique Blanc",
+    ]
+    path = tmp_path / "students.csv"
+    path.write_bytes(_make_csv(names, "windows-1252"))
+    students = Students.load(path)
+    assert [s.student_id for s in students.students] == names
+
+
+def test_load_fallback_when_detection_returns_none(tmp_path, monkeypatch):
+    # Simulate charset-normalizer finding no best match: falls back to mac_roman.
+    # Raw byte 0x83 = É in mac_roman.
+    class _FakeResults:
+        def best(self):
+            return None
+
+    monkeypatch.setattr("charset_normalizer.from_bytes", lambda _: _FakeResults())
+    path = tmp_path / "students.csv"
+    path.write_bytes(b"student_id,q1\n\x83milie,a\n")
+    students = Students.load(path)
+    assert students.students[0].student_id == "Émilie"
+
+
+def test_load_fallback_when_detected_encoding_cannot_decode(tmp_path, monkeypatch):
+    # Simulate charset-normalizer returning an encoding that cannot decode
+    # the raw bytes (e.g. ascii for a file with non-ASCII bytes): falls back
+    # to mac_roman. Raw byte 0x83 = É in mac_roman.
+    class _FakeResult:
+        encoding = "ascii"
+
+    class _FakeResults:
+        def best(self):
+            return _FakeResult()
+
+    monkeypatch.setattr("charset_normalizer.from_bytes", lambda _: _FakeResults())
+    path = tmp_path / "students.csv"
+    path.write_bytes(b"student_id,q1\n\x83milie,a\n")
+    students = Students.load(path)
+    assert students.students[0].student_id == "Émilie"
