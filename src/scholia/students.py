@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import io
 from dataclasses import dataclass, field
 from pathlib import Path
 
@@ -26,22 +27,43 @@ class Students:
 
     @classmethod
     def load(cls, path: Path) -> Students:
-        """Load the roster from a CSV file."""
-        with open(path, newline="") as file_handle:
-            reader = csv.DictReader(file_handle)
-            fieldnames = list(reader.fieldnames or [])
-            question_names = [f for f in fieldnames if f != "student_id"]
-            students: list[Student] = []
-            for row in reader:
-                assignments = {
-                    question: row.get(question, "") for question in question_names
-                }
-                students.append(
-                    Student(
-                        student_id=row["student_id"],
-                        assignments=assignments,
-                    )
+        """Load the roster from a CSV file.
+
+        UTF-8 (with or without BOM) is tried first. For files in a
+        legacy single-byte encoding (e.g. Mac Roman or Windows-1252
+        exported by some university systems), ``charset-normalizer``
+        detects the encoding; if detection fails or the detected
+        encoding cannot decode the raw bytes, Mac Roman is used as a
+        final fallback.
+        """
+        raw = path.read_bytes()
+        try:
+            text = raw.decode("utf-8-sig")
+        except UnicodeDecodeError:
+            from charset_normalizer import from_bytes as _from_bytes
+
+            best = _from_bytes(raw).best()
+            if best is not None:
+                try:
+                    text = raw.decode(best.encoding)
+                except (UnicodeDecodeError, LookupError):
+                    text = raw.decode("mac_roman")
+            else:
+                text = raw.decode("mac_roman")
+        reader = csv.DictReader(io.StringIO(text))
+        fieldnames = list(reader.fieldnames or [])
+        question_names = [f for f in fieldnames if f != "student_id"]
+        students: list[Student] = []
+        for row in reader:
+            assignments = {
+                question: row.get(question, "") for question in question_names
+            }
+            students.append(
+                Student(
+                    student_id=row["student_id"],
+                    assignments=assignments,
                 )
+            )
         return cls(students=students, question_names=question_names)
 
     def save(self, path: Path) -> None:

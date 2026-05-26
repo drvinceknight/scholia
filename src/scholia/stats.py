@@ -61,13 +61,13 @@ def _generate_boxplot_chart(
     fig, ax = plt.subplots(figsize=(max(4, len(question_names) * 1.5), 3))
     ax.boxplot(data, tick_labels=question_names)
     ax.set_ylabel("Marks")
-    ax.set_title("Marks per question")
+    ax.set_title("Marks per criterion")
     fig.savefig(charts_dir / "boxplot.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
     return [
-        "## Marks per question",
+        "## Marks per criterion",
         "",
-        "![Marks per question](charts/boxplot.png)",
+        "![Marks per criterion](charts/boxplot.png)",
         "",
     ]
 
@@ -93,14 +93,14 @@ def _generate_correlation_chart(
             label = f"{value:.2f}" if not np.isnan(value) else "N/A"
             ax.text(col_idx, row_idx, label, ha="center", va="center", fontsize=9)
     plt.colorbar(image, ax=ax)
-    ax.set_title("Question mark correlations")
+    ax.set_title("Criterion mark correlations")
     fig.tight_layout()
     fig.savefig(charts_dir / "correlation.png", bbox_inches="tight", dpi=150)
     plt.close(fig)
     return [
-        "## Question mark correlations",
+        "## Criterion mark correlations",
         "",
-        "![Question mark correlations](charts/correlation.png)",
+        "![Criterion mark correlations](charts/correlation.png)",
         "",
     ]
 
