@@ -16,6 +16,7 @@ class Student:
 
     student_id: str
     assignments: dict[str, str] = field(default_factory=dict)
+    note: str = ""
 
 
 @dataclass
@@ -52,7 +53,9 @@ class Students:
                 text = raw.decode("mac_roman")
         reader = csv.DictReader(io.StringIO(text))
         fieldnames = list(reader.fieldnames or [])
-        question_names = [f for f in fieldnames if f != "student_id"]
+        question_names = [
+            f for f in fieldnames if f not in ("student_id", "note")
+        ]
         students: list[Student] = []
         for row in reader:
             assignments = {
@@ -62,13 +65,14 @@ class Students:
                 Student(
                     student_id=row["student_id"],
                     assignments=assignments,
+                    note=row.get("note", ""),
                 )
             )
         return cls(students=students, question_names=question_names)
 
     def save(self, path: Path) -> None:
         """Write the roster to a CSV file."""
-        fieldnames = ["student_id"] + self.question_names
+        fieldnames = ["student_id"] + self.question_names + ["note"]
         with open(path, "w", newline="") as file_handle:
             writer = csv.DictWriter(file_handle, fieldnames=fieldnames)
             writer.writeheader()
@@ -76,6 +80,7 @@ class Students:
                 row: dict[str, str] = {"student_id": student.student_id}
                 for question in self.question_names:
                     row[question] = student.assignments.get(question, "")
+                row["note"] = student.note
                 writer.writerow(row)
 
     def sync_headers(self, question_names: list[str]) -> None:

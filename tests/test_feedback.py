@@ -65,6 +65,20 @@ def test_feedback_creates_directory(tmp_path, scheme, complete_student):
     assert (feedback_dir / "s001.md").exists()
 
 
+def test_feedback_with_note(tmp_path, scheme, complete_student):
+    complete_student.note = "Student requested an extension."
+    generate_student_feedback(complete_student, scheme, tmp_path / "feedback")
+    content = (tmp_path / "feedback" / "s001.md").read_text()
+    assert "## Note" in content
+    assert "Student requested an extension." in content
+
+
+def test_feedback_without_note(tmp_path, scheme, complete_student):
+    generate_student_feedback(complete_student, scheme, tmp_path / "feedback")
+    content = (tmp_path / "feedback" / "s001.md").read_text()
+    assert "## Note" not in content
+
+
 def test_generate_all_feedback(tmp_path, scheme, students_path):
     students = Students.load(students_path)
     generate_all_feedback(students, scheme, tmp_path / "feedback")

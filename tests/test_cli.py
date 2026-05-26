@@ -65,7 +65,7 @@ def test_update_syncs_headers_sorted(chdir):
     result = runner.invoke(app, ["update"])
     assert result.exit_code == 0
     header = (chdir / "scholia" / "students.csv").read_text().splitlines()[0]
-    assert header == "student_id,q1,q2"
+    assert header == "student_id,q1,q2,note"
     assert "Updated headers" in result.output
 
 
@@ -75,7 +75,7 @@ def test_update_syncs_headers_preserve_order(chdir):
     result = runner.invoke(app, ["update", "--preserve-order"])
     assert result.exit_code == 0
     header = (chdir / "scholia" / "students.csv").read_text().splitlines()[0]
-    assert header == "student_id,q2,q1"
+    assert header == "student_id,q2,q1,note"
 
 
 def test_init_custom_directory(chdir):
