@@ -119,9 +119,7 @@ def test_sync_headers_appends_extra_columns(students_path):
 
 def test_load_note_column(tmp_path):
     path = tmp_path / "students.csv"
-    path.write_text(
-        'student_id,q1,note\ns001,a,"Good work, overall."\n'
-    )
+    path.write_text('student_id,q1,note\ns001,a,"Good work, overall."\n')
     students = Students.load(path)
     assert students.students[0].note == "Good work, overall."
     assert students.question_names == ["q1"]

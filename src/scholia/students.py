@@ -53,9 +53,7 @@ class Students:
                 text = raw.decode("mac_roman")
         reader = csv.DictReader(io.StringIO(text))
         fieldnames = list(reader.fieldnames or [])
-        question_names = [
-            f for f in fieldnames if f not in ("student_id", "note")
-        ]
+        question_names = [f for f in fieldnames if f not in ("student_id", "note")]
         students: list[Student] = []
         for row in reader:
             assignments = {
