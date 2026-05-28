@@ -273,4 +273,3 @@ def test_summary_no_bands_no_table(tmp_path, scheme, two_student_roster):
     generate_summary(two_student_roster, scheme, output)
     content = output.read_text()
     assert "## Grade bands" not in content
-

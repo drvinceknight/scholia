@@ -96,4 +96,3 @@ def mark(
     assets_dir = scholia_dir / "assets"
     generate_summary(students, scheme, summary_path, assets_dir)
     typer.echo(f"Generated summary at {summary_path.as_posix()}")
-
