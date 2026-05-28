@@ -47,13 +47,13 @@ def update(
     preserve_order: bool = typer.Option(
         False,
         "--preserve-order",
-        help="Keep question order from scheme.yaml instead of sorting alphabetically.",
+        help="Keep criterion order from scheme.yaml instead of sorting alphabetically.",
     ),
     directory: str = typer.Option(
         _DEFAULT_DIR, "--dir", help="Marking directory to operate on."
     ),
 ) -> None:
-    """Sync question headers in students.csv from scheme.yaml."""
+    """Sync criterion headers in students.csv from scheme.yaml."""
     scholia_dir = Path(directory)
     scheme_path = scholia_dir / SCHEME_FILENAME
     students_path = scholia_dir / STUDENTS_FILENAME
@@ -61,11 +61,11 @@ def update(
     scheme = Scheme.load(scheme_path)
     students = Students.load(students_path)
 
-    question_names = scheme.question_names()
+    criterion_names = scheme.criterion_names()
     if not preserve_order:
-        question_names = sorted(question_names)
+        criterion_names = sorted(criterion_names)
 
-    students.sync_headers(question_names)
+    students.sync_headers(criterion_names)
     students.save(students_path)
     typer.echo(f"Updated headers in {students_path.as_posix()}")
 
@@ -93,6 +93,6 @@ def mark(
     typer.echo(f"Generated marks at {marks_csv_path.as_posix()}")
 
     summary_path = scholia_dir / "summary.md"
-    charts_dir = scholia_dir / "charts"
-    generate_summary(students, scheme, summary_path, charts_dir)
+    assets_dir = scholia_dir / "assets"
+    generate_summary(students, scheme, summary_path, assets_dir)
     typer.echo(f"Generated summary at {summary_path.as_posix()}")

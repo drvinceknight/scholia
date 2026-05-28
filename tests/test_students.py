@@ -14,7 +14,7 @@ def test_load_students(students_path):
     assert len(students.students) == 2
     assert students.students[0].student_id == "s001"
     assert students.students[0].assignments["q1(a)"] == "b"
-    assert students.question_names == ["q1(a)", "q1(b)"]
+    assert students.criterion_names == ["q1(a)", "q1(b)"]
 
 
 def test_load_no_question_columns(tmp_path):
@@ -22,7 +22,7 @@ def test_load_no_question_columns(tmp_path):
     path.write_text("student_id\ns001\n")
     students = Students.load(path)
     assert len(students.students) == 1
-    assert students.question_names == []
+    assert students.criterion_names == []
 
 
 def test_load_empty_roster(tmp_path):
@@ -30,7 +30,7 @@ def test_load_empty_roster(tmp_path):
     path.write_text("student_id\n")
     students = Students.load(path)
     assert students.students == []
-    assert students.question_names == []
+    assert students.criterion_names == []
 
 
 def test_save_roundtrip(tmp_path, students_path):
@@ -47,7 +47,7 @@ def test_save_fills_missing_assignments(tmp_path):
     path = tmp_path / "students.csv"
     path.write_text("student_id\ns001\n")
     students = Students.load(path)
-    students.question_names = ["q1(a)"]
+    students.criterion_names = ["q1(a)"]
     out_path = tmp_path / "out.csv"
     students.save(out_path)
     loaded = Students.load(out_path)
@@ -63,7 +63,7 @@ def test_update_existing_question(students_path):
 def test_update_new_question(students_path):
     students = Students.load(students_path)
     students.update("s001", "q2(a)", "b")
-    assert "q2(a)" in students.question_names
+    assert "q2(a)" in students.criterion_names
     assert students.students[0].assignments["q2(a)"] == "b"
 
 
@@ -99,7 +99,7 @@ def test_sync_headers_adds_new_question(tmp_path):
     path.write_text("student_id,q1(a)\ns001,b\n")
     students = Students.load(path)
     students.sync_headers(["q1(a)", "q1(b)"])
-    assert students.question_names == ["q1(a)", "q1(b)"]
+    assert students.criterion_names == ["q1(a)", "q1(b)"]
     assert students.students[0].assignments["q1(b)"] == ""
     assert students.students[0].assignments["q1(a)"] == "b"
 
@@ -107,14 +107,14 @@ def test_sync_headers_adds_new_question(tmp_path):
 def test_sync_headers_reorders(students_path):
     students = Students.load(students_path)
     students.sync_headers(["q1(b)", "q1(a)"])
-    assert students.question_names == ["q1(b)", "q1(a)"]
+    assert students.criterion_names == ["q1(b)", "q1(a)"]
     assert students.students[0].assignments["q1(a)"] == "b"
 
 
 def test_sync_headers_appends_extra_columns(students_path):
     students = Students.load(students_path)
     students.sync_headers(["q1(a)"])
-    assert students.question_names == ["q1(a)", "q1(b)"]
+    assert students.criterion_names == ["q1(a)", "q1(b)"]
 
 
 def test_load_note_column(tmp_path):
@@ -122,7 +122,7 @@ def test_load_note_column(tmp_path):
     path.write_text('student_id,q1,note\ns001,a,"Good work, overall."\n')
     students = Students.load(path)
     assert students.students[0].note == "Good work, overall."
-    assert students.question_names == ["q1"]
+    assert students.criterion_names == ["q1"]
 
 
 def test_load_missing_note_column(tmp_path):
@@ -135,11 +135,11 @@ def test_load_missing_note_column(tmp_path):
 def test_save_includes_note_column(tmp_path):
     students = Students(
         students=[Student(student_id="s001", note="Excellent effort.")],
-        question_names=[],
+        criterion_names=[],
     )
     out_path = tmp_path / "out.csv"
     students.save(out_path)
-    content = out_path.read_text()
+    content = out_path.read_text(encoding="utf-8")
     assert "note" in content
     assert "Excellent effort." in content
 
@@ -153,7 +153,7 @@ def test_save_roundtrip_with_note(tmp_path):
                 note="Great effort.",
             )
         ],
-        question_names=["q1"],
+        criterion_names=["q1"],
     )
     out_path = tmp_path / "out.csv"
     students.save(out_path)
@@ -165,7 +165,7 @@ def test_save_note_with_commas_and_quotes(tmp_path):
     note = 'Said "I ran out of time," but work was strong.'
     students = Students(
         students=[Student(student_id="s001", note=note)],
-        question_names=[],
+        criterion_names=[],
     )
     out_path = tmp_path / "out.csv"
     students.save(out_path)
@@ -177,9 +177,9 @@ def test_sync_headers_no_students(scheme_path):
     from scholia.scheme import Scheme
 
     scheme = Scheme.load(scheme_path)
-    students = Students(students=[], question_names=[])
-    students.sync_headers(scheme.question_names())
-    assert students.question_names == scheme.question_names()
+    students = Students(students=[], criterion_names=[])
+    students.sync_headers(scheme.criterion_names())
+    assert students.criterion_names == scheme.criterion_names()
 
 
 # ---------------------------------------------------------------------------

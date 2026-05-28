@@ -64,7 +64,9 @@ def test_update_syncs_headers_sorted(chdir):
     _write_scheme_unordered(chdir / "scholia" / "scheme.yaml")
     result = runner.invoke(app, ["update"])
     assert result.exit_code == 0
-    header = (chdir / "scholia" / "students.csv").read_text().splitlines()[0]
+    header = (
+        (chdir / "scholia" / "students.csv").read_text(encoding="utf-8").splitlines()[0]
+    )
     assert header == "student_id,q1,q2,note"
     assert "Updated headers" in result.output
 
@@ -74,7 +76,9 @@ def test_update_syncs_headers_preserve_order(chdir):
     _write_scheme_unordered(chdir / "scholia" / "scheme.yaml")
     result = runner.invoke(app, ["update", "--preserve-order"])
     assert result.exit_code == 0
-    header = (chdir / "scholia" / "students.csv").read_text().splitlines()[0]
+    header = (
+        (chdir / "scholia" / "students.csv").read_text(encoding="utf-8").splitlines()[0]
+    )
     assert header == "student_id,q2,q1,note"
 
 
@@ -91,7 +95,9 @@ def test_update_custom_directory(chdir, scheme_data):
     _write_scheme(chdir / "my-exam" / "scheme.yaml", scheme_data)
     result = runner.invoke(app, ["update", "--dir", "my-exam"])
     assert result.exit_code == 0
-    header = (chdir / "my-exam" / "students.csv").read_text().splitlines()[0]
+    header = (
+        (chdir / "my-exam" / "students.csv").read_text(encoding="utf-8").splitlines()[0]
+    )
     assert "q1(a)" in header
 
 

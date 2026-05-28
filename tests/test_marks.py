@@ -1,7 +1,7 @@
 import pytest
 
 from scholia.exceptions import CategoryNotInSchemeError
-from scholia.marks import compute_question_marks, compute_total_marks
+from scholia.marks import compute_criterion_marks, compute_total_marks
 from scholia.scheme import Scheme
 from scholia.students import Student
 
@@ -35,41 +35,41 @@ def unknown_category_student():
     )
 
 
-def test_compute_question_marks_complete(scheme, complete_student):
-    marks = compute_question_marks(complete_student, scheme)
+def test_compute_criterion_marks_complete(scheme, complete_student):
+    marks = compute_criterion_marks(complete_student, scheme)
     assert marks["q1(a)"] == 8
     assert marks["q1(b)"] == 10
 
 
-def test_compute_question_marks_incomplete(scheme, incomplete_student):
-    marks = compute_question_marks(incomplete_student, scheme)
+def test_compute_criterion_marks_incomplete(scheme, incomplete_student):
+    marks = compute_criterion_marks(incomplete_student, scheme)
     assert marks["q1(a)"] == 6
     assert marks["q1(b)"] is None
 
 
-def test_compute_question_marks_unknown_category(scheme, unknown_category_student):
+def test_compute_criterion_marks_unknown_category(scheme, unknown_category_student):
     with pytest.raises(CategoryNotInSchemeError) as exc_info:
-        compute_question_marks(unknown_category_student, scheme)
+        compute_criterion_marks(unknown_category_student, scheme)
     error = exc_info.value
     assert error.student_id == "s003"
-    assert error.question_name == "q1(a)"
+    assert error.criterion_name == "q1(a)"
     assert error.category_id == "z"
     assert sorted(error.valid_categories) == ["a", "b", "c"]
 
 
-def test_compute_question_marks_unknown_category_message(
+def test_compute_criterion_marks_unknown_category_message(
     scheme, unknown_category_student
 ):
     with pytest.raises(CategoryNotInSchemeError, match="'z'"):
-        compute_question_marks(unknown_category_student, scheme)
+        compute_criterion_marks(unknown_category_student, scheme)
 
 
-def test_compute_question_marks_zero_marks(scheme):
+def test_compute_criterion_marks_zero_marks(scheme):
     student = Student(
         student_id="s004",
         assignments={"q1(a)": "a", "q1(b)": "a"},
     )
-    marks = compute_question_marks(student, scheme)
+    marks = compute_criterion_marks(student, scheme)
     assert marks["q1(a)"] == 0
     assert marks["q1(b)"] == 0
 

@@ -67,6 +67,50 @@ This adds the new question column to `students.csv` so that it is ready
 to receive category labels. See
 [Sync scheme headers](update-a-student.md) for details.
 
+## Defining grade bands
+
+Add an optional `bands` key to the scheme to define named grade bands.
+Each entry gives an inclusive lower threshold and a name for the band
+above it.
+
+```yaml
+bands:
+  - name: Fail
+    min: 0
+  - name: Pass
+    min: 40
+  - name: First class
+    min: 70
+
+q1(a):
+  a:
+    marks: 0
+    feedback: "Did not attempt the question."
+  b:
+    marks: 8
+    feedback: "Correct and well-presented solution."
+```
+
+When bands are present, `scholia mark` adds two things to the output.
+
+First, a **Grade bands** table appears in `summary.md` showing the
+count and percentage of completely marked students in each band:
+
+```
+| Band        | Range | Students | %     |
+|-------------|-------|----------|-------|
+| Fail        | 0–39  | 3        | 15.0% |
+| Pass        | 40–69 | 12       | 60.0% |
+| First class | ≥ 70  | 5        | 25.0% |
+```
+
+Second, vertical dashed lines at each threshold are drawn on the mark
+distribution histogram and the cumulative distribution chart, labelled
+with the band name.
+
+Bands are entirely optional. Omitting the `bands` key leaves all
+existing behaviour unchanged.
+
 ## Adjusting marks
 
 A category's mark can be changed at any time by editing the `marks`
