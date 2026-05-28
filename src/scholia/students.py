@@ -24,7 +24,7 @@ class Students:
     """The full student roster."""
 
     students: list[Student] = field(default_factory=list)
-    question_names: list[str] = field(default_factory=list)
+    criterion_names: list[str] = field(default_factory=list)
 
     @classmethod
     def load(cls, path: Path) -> Students:
@@ -53,11 +53,11 @@ class Students:
                 text = raw.decode("mac_roman")
         reader = csv.DictReader(io.StringIO(text))
         fieldnames = list(reader.fieldnames or [])
-        question_names = [f for f in fieldnames if f not in ("student_id", "note")]
+        criterion_names = [f for f in fieldnames if f not in ("student_id", "note")]
         students: list[Student] = []
         for row in reader:
             assignments = {
-                question: row.get(question, "") for question in question_names
+                criterion: row.get(criterion, "") for criterion in criterion_names
             }
             students.append(
                 Student(
@@ -66,50 +66,50 @@ class Students:
                     note=row.get("note", ""),
                 )
             )
-        return cls(students=students, question_names=question_names)
+        return cls(students=students, criterion_names=criterion_names)
 
     def save(self, path: Path) -> None:
         """Write the roster to a CSV file."""
-        fieldnames = ["student_id"] + self.question_names + ["note"]
+        fieldnames = ["student_id"] + self.criterion_names + ["note"]
         with open(path, "w", newline="") as file_handle:
             writer = csv.DictWriter(file_handle, fieldnames=fieldnames)
             writer.writeheader()
             for student in self.students:
                 row: dict[str, str] = {"student_id": student.student_id}
-                for question in self.question_names:
-                    row[question] = student.assignments.get(question, "")
+                for criterion in self.criterion_names:
+                    row[criterion] = student.assignments.get(criterion, "")
                 row["note"] = student.note
                 writer.writerow(row)
 
-    def sync_headers(self, question_names: list[str]) -> None:
-        """Sync question columns with the given list.
+    def sync_headers(self, criterion_names: list[str]) -> None:
+        """Sync criterion columns with the given list.
 
-        Questions not yet in the roster are added with empty values.
-        The column order is updated to match ``question_names``; columns
-        already present but absent from ``question_names`` are appended
+        Criteria not yet in the roster are added with empty values.
+        The column order is updated to match ``criterion_names``; columns
+        already present but absent from ``criterion_names`` are appended
         at the end.
         """
-        extra = [q for q in self.question_names if q not in question_names]
-        new_order = list(question_names) + extra
+        extra = [q for q in self.criterion_names if q not in criterion_names]
+        new_order = list(criterion_names) + extra
         for student in self.students:
-            for question in new_order:
-                if question not in student.assignments:
-                    student.assignments[question] = ""
-        self.question_names = new_order
+            for criterion in new_order:
+                if criterion not in student.assignments:
+                    student.assignments[criterion] = ""
+        self.criterion_names = new_order
 
-    def update(self, student_id: str, question: str, category: str) -> None:
-        """Set a student's category for one question.
+    def update(self, student_id: str, criterion: str, category: str) -> None:
+        """Set a student's category for one criterion.
 
-        If ``question`` is not yet a column in the roster, it is added.
+        If ``criterion`` is not yet a column in the roster, it is added.
 
         Raises:
             ValueError: If ``student_id`` is not in the roster.
         """
         for student in self.students:
             if student.student_id == student_id:
-                if question not in self.question_names:
-                    self.question_names.append(question)
-                student.assignments[question] = category
+                if criterion not in self.criterion_names:
+                    self.criterion_names.append(criterion)
+                student.assignments[criterion] = category
                 return
         raise ValueError(f"Student {student_id!r} not found")
 

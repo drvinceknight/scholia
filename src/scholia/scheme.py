@@ -1,4 +1,4 @@
-"""Marking scheme: questions and their scored categories."""
+"""Marking scheme: criteria and their scored categories."""
 
 from __future__ import annotations
 
@@ -12,16 +12,24 @@ SCHEME_FILENAME: str = "scheme.yaml"
 
 
 @dataclass
+class Band:
+    """A named grade band defined by an inclusive lower threshold."""
+
+    name: str
+    min: int
+
+
+@dataclass
 class Category:
-    """A single scored outcome for one question."""
+    """A single scored outcome for one criterion."""
 
     marks: int
     feedback: str
 
 
 @dataclass
-class Question:
-    """A question in the marking scheme, with its possible categories."""
+class Criterion:
+    """A criterion in the marking scheme, with its possible categories."""
 
     categories: dict[str, Category] = field(default_factory=dict)
 
@@ -30,31 +38,36 @@ class Question:
 class Scheme:
     """The full marking scheme for one piece of assessment."""
 
-    questions: dict[str, Question] = field(default_factory=dict)
+    criteria: dict[str, Criterion] = field(default_factory=dict)
+    bands: list[Band] = field(default_factory=list)
 
     @classmethod
     def load(cls, path: Path) -> Scheme:
         """Load a scheme from a YAML file."""
         with open(path) as file_handle:
             raw: dict[str, Any] = yaml.safe_load(file_handle) or {}
-        questions: dict[str, Question] = {}
-        for question_name, categories_data in raw.items():
+        bands_data = raw.pop("bands", None) or []
+        bands = [Band(name=b["name"], min=b["min"]) for b in bands_data]
+        criteria: dict[str, Criterion] = {}
+        for criterion_name, categories_data in raw.items():
             categories: dict[str, Category] = {}
             for category_id, category_data in (categories_data or {}).items():
                 categories[category_id] = Category(
                     marks=category_data["marks"],
                     feedback=category_data["feedback"],
                 )
-            questions[question_name] = Question(categories=categories)
-        return cls(questions=questions)
+            criteria[criterion_name] = Criterion(categories=categories)
+        return cls(criteria=criteria, bands=bands)
 
     def save(self, path: Path) -> None:
         """Write the scheme to a YAML file."""
         raw: dict[str, Any] = {}
-        for question_name, question in self.questions.items():
-            raw[question_name] = {}
-            for category_id, category in question.categories.items():
-                raw[question_name][category_id] = {
+        if self.bands:
+            raw["bands"] = [{"name": b.name, "min": b.min} for b in self.bands]
+        for criterion_name, criterion in self.criteria.items():
+            raw[criterion_name] = {}
+            for category_id, category in criterion.categories.items():
+                raw[criterion_name][category_id] = {
                     "marks": category.marks,
                     "feedback": category.feedback,
                 }
@@ -67,13 +80,13 @@ class Scheme:
                 sort_keys=False,
             )
 
-    def question_names(self) -> list[str]:
-        """Return question names in definition order."""
-        return list(self.questions.keys())
+    def criterion_names(self) -> list[str]:
+        """Return criterion names in definition order."""
+        return list(self.criteria.keys())
 
-    def get_category(self, question_name: str, category_id: str) -> Category | None:
+    def get_category(self, criterion_name: str, category_id: str) -> Category | None:
         """Return the category, or ``None`` if not found."""
-        question = self.questions.get(question_name)
-        if question is None:
+        criterion = self.criteria.get(criterion_name)
+        if criterion is None:
             return None
-        return question.categories.get(category_id)
+        return criterion.categories.get(category_id)

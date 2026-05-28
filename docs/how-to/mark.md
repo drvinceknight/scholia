@@ -13,7 +13,7 @@ writes:
 - **`scholia/feedback/<student_id>.md`** for each student in the roster.
 - **`scholia/marks.csv`** with student IDs and total marks.
 - **`scholia/summary.md`** with cohort-level statistics.
-- **`scholia/charts/`**: a set of summary charts.
+- **`scholia/assets/`**: a set of summary charts (PNG).
 
 `scholia mark` can be run as many times as needed. Each run overwrites
 the previous output, so you can adjust the scheme or student

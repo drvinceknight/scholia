@@ -1,6 +1,7 @@
 import csv
 
 import pytest
+import yaml
 
 from scholia.scheme import Scheme
 from scholia.stats import (
@@ -58,16 +59,16 @@ def test_summary_no_complete_students(tmp_path, scheme, empty_roster_path):
     generate_summary(students, scheme, output)
     content = output.read_text()
     assert "No complete marks yet." in content
-    assert "## Per-question breakdown" in content
+    assert "## Per-criterion breakdown" in content
 
 
 def test_summary_two_students_no_charts(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, scheme, output)
     content = output.read_text()
-    assert "**Students marked:** 2" in content
-    assert "**Mean:** 12.00" in content
-    assert "**Standard deviation:**" in content
+    assert "| Count | 2 |" in content
+    assert "| Mean | 12.00 |" in content
+    assert "| Std dev |" in content
     assert "charts" not in content
 
 
@@ -133,8 +134,8 @@ def test_summary_one_student_stdev_zero(tmp_path, scheme, one_student_path):
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
     content = output.read_text()
-    assert "**Students marked:** 1" in content
-    assert "**Standard deviation:** 0.00" in content
+    assert "| Count | 1 |" in content
+    assert "| Std dev | 0.00 |" in content
 
 
 def test_summary_empty_category_assignment(tmp_path, scheme, partial_roster_path):
@@ -188,8 +189,8 @@ def test_summary_same_mark_different_feedback(tmp_path):
     assert "Correct but concise: 1 student(s) (8 marks)" in content
     assert "Correct but verbose: 1 student(s) (8 marks)" in content
     # Total marks are still computed correctly.
-    assert "**Students marked:** 2" in content
-    assert "**Mean:** 8.00" in content
+    assert "| Count | 2 |" in content
+    assert "| Mean | 8.00 |" in content
 
 
 def test_generate_marks_csv_complete(tmp_path, scheme, two_student_roster):
@@ -219,3 +220,57 @@ def test_correlation_chart_nan_handling(tmp_path):
         charts_dir,
     )
     assert (charts_dir / "correlation.png").exists()
+
+
+@pytest.fixture
+def banded_scheme(tmp_path):
+    path = tmp_path / "banded_scheme.yaml"
+    with open(path, "w") as file_handle:
+        yaml.dump(
+            {
+                "bands": [
+                    {"name": "Fail", "min": 0},
+                    {"name": "Pass", "min": 10},
+                    {"name": "First class", "min": 15},
+                ],
+                "q1(a)": {
+                    "a": {"marks": 0, "feedback": "Did not attempt"},
+                    "b": {"marks": 8, "feedback": "Perfect solution"},
+                    "c": {"marks": 6, "feedback": "Omitted the derivative"},
+                },
+                "q1(b)": {
+                    "a": {"marks": 0, "feedback": "Did not attempt"},
+                    "b": {"marks": 10, "feedback": "Perfect solution"},
+                },
+            },
+            file_handle,
+            sort_keys=False,
+        )
+    return Scheme.load(path)
+
+
+def test_summary_with_bands(tmp_path, banded_scheme, two_student_roster):
+    # s001 total=18 (First class >=15), s002 total=6 (Fail 0-9)
+    output = tmp_path / "summary.md"
+    generate_summary(two_student_roster, banded_scheme, output)
+    content = output.read_text()
+    assert "## Grade bands" in content
+    assert "| Fail | 0–9 | 1 | 50.0% |" in content
+    assert "| Pass | 10–14 | 0 | 0.0% |" in content
+    assert "| First class | ≥ 15 | 1 | 50.0% |" in content
+
+
+def test_summary_with_bands_and_charts(tmp_path, banded_scheme, two_student_roster):
+    output = tmp_path / "summary.md"
+    charts_dir = tmp_path / "charts"
+    generate_summary(two_student_roster, banded_scheme, output, charts_dir)
+    assert (charts_dir / "distribution.png").exists()
+    assert (charts_dir / "cumulative.png").exists()
+
+
+def test_summary_no_bands_no_table(tmp_path, scheme, two_student_roster):
+    output = tmp_path / "summary.md"
+    generate_summary(two_student_roster, scheme, output)
+    content = output.read_text()
+    assert "## Grade bands" not in content
+

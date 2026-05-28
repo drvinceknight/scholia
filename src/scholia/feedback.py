@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from scholia.marks import compute_question_marks, compute_total_marks
+from scholia.marks import compute_criterion_marks, compute_total_marks
 from scholia.scheme import Scheme
 from scholia.students import Student, Students
 
@@ -16,7 +16,7 @@ def generate_student_feedback(
 ) -> None:
     """Write a markdown feedback file to ``feedback_dir/<student_id>.md``."""
     feedback_dir.mkdir(parents=True, exist_ok=True)
-    question_marks = compute_question_marks(student, scheme)
+    criterion_marks = compute_criterion_marks(student, scheme)
     total = compute_total_marks(student, scheme)
 
     lines: list[str] = [f"# Feedback: {student.student_id}", ""]
@@ -26,12 +26,12 @@ def generate_student_feedback(
     else:
         lines += ["**Total marks:** incomplete", ""]
 
-    lines += ["## Question breakdown", ""]
+    lines += ["## Criterion breakdown", ""]
 
-    for question_name, marks in question_marks.items():
-        category_id = student.assignments.get(question_name, "")
-        category = scheme.get_category(question_name, category_id)
-        lines += [f"### {question_name}", ""]
+    for criterion_name, marks in criterion_marks.items():
+        category_id = student.assignments.get(criterion_name, "")
+        category = scheme.get_category(criterion_name, category_id)
+        lines += [f"### {criterion_name}", ""]
         if marks is not None and category is not None:
             lines += [f"**Marks:** {marks}", "", category.feedback, ""]
         else:

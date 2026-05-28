@@ -56,17 +56,17 @@ def test_full_workflow_sorted_headers(tmp_path, monkeypatch):
     assert "**Total marks:** 5" in bob  # q1=0 + q2=5
 
     summary = (tmp_path / "scholia" / "summary.md").read_text()
-    assert "**Students marked:** 2" in summary
-    assert "**Mean:** 10.00" in summary
+    assert "| Count | 2 |" in summary
+    assert "| Mean | 10.00 |" in summary
 
     marks_csv = (tmp_path / "scholia" / "marks.csv").read_text()
     assert "s001,15" in marks_csv
     assert "s002,5" in marks_csv
 
-    assert (tmp_path / "scholia" / "charts" / "distribution.png").exists()
-    assert (tmp_path / "scholia" / "charts" / "cumulative.png").exists()
-    assert (tmp_path / "scholia" / "charts" / "boxplot.png").exists()
-    assert (tmp_path / "scholia" / "charts" / "correlation.png").exists()
+    assert (tmp_path / "scholia" / "assets" / "distribution.png").exists()
+    assert (tmp_path / "scholia" / "assets" / "cumulative.png").exists()
+    assert (tmp_path / "scholia" / "assets" / "boxplot.png").exists()
+    assert (tmp_path / "scholia" / "assets" / "correlation.png").exists()
 
 
 def test_full_workflow_preserve_order(tmp_path, monkeypatch):

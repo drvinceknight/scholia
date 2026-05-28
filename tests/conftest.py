@@ -40,3 +40,4 @@ def students_path(tmp_path):
         writer.writeheader()
         writer.writerows(rows)
     return path
+

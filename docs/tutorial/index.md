@@ -1,7 +1,7 @@
 # Getting started
 
 In this tutorial, you will mark a small piece of assessment from
-scratch. There are three students and two questions; by the end you will
+scratch. There are three students and two criteria; by the end you will
 have individual feedback files, a cohort summary, and a set of
 summary charts.
 
@@ -35,8 +35,8 @@ header row `student_id`.
 
 ## Write the marking scheme
 
-Open `scholia/scheme.yaml` and define the questions and categories.
-This tutorial uses two questions, each with three possible outcomes:
+Open `scholia/scheme.yaml` and define the criteria and categories.
+This tutorial uses two criteria, each with three possible outcomes:
 
 ```yaml
 q1(a):
@@ -62,7 +62,7 @@ q1(b):
     feedback: "Correct method but missing the boundary case."
 ```
 
-## Sync the question headers
+## Sync the criterion headers
 
 Run:
 
@@ -70,11 +70,11 @@ Run:
 uv run scholia update
 ```
 
-Scholia reads the question names from `scheme.yaml` and adds the
+Scholia reads the criterion names from `scheme.yaml` and adds the
 corresponding columns to `students.csv`, sorted alphabetically:
 
 ```csv
-student_id,q1(a),q1(b)
+student_id,q1(a),q1(b),note
 ```
 
 ## Add the students
@@ -83,27 +83,27 @@ Open `scholia/students.csv` and append a row for each student,
 leaving the category columns blank for now:
 
 ```csv
-student_id,q1(a),q1(b)
-s001,,
-s002,,
-s003,,
+student_id,q1(a),q1(b),note
+s001,,,
+s002,,,
+s003,,,
 ```
 
 ## Mark each student
 
-Fill in the category label for each student and question by editing
+Fill in the category label for each student and criterion by editing
 the CSV directly:
 
 ```csv
-student_id,q1(a),q1(b)
-s001,b,b
-s002,c,a
-s003,a,c
+student_id,q1(a),q1(b),note
+s001,b,b,
+s002,c,a,
+s003,a,c,
 ```
 
 ## Generate feedback and summary
 
-Once categories have been assigned for every student and question, run:
+Once categories have been assigned for every student and criterion, run:
 
 ```bash
 scholia mark
@@ -115,7 +115,7 @@ Scholia writes:
   feedback files.
 - `scholia/marks.csv`: student IDs and total marks.
 - `scholia/summary.md`: cohort statistics.
-- `scholia/charts/`: summary charts.
+- `scholia/assets/`: summary charts.
 
 ## Inspecting the marks CSV
 
@@ -144,7 +144,7 @@ cat scholia/feedback/s001.md
 
 **Total marks:** 18
 
-## Question breakdown
+## Criterion breakdown
 
 ### q1(a)
 
@@ -168,35 +168,34 @@ cat scholia/summary.md
 ```markdown
 # Marking summary
 
-**Students marked:** 3
-
-**Mean:** 10.33
-
-**Median:** 7
-
-**Standard deviation:** 6.66
-
-**Min:** 6
-
-**Max:** 18
+| Statistic | Value |
+|-----------|-------|
+| Count | 3 |
+| Mean | 10.33 |
+| Std dev | 6.66 |
+| Min | 6 |
+| Q1 (25%) | 6.50 |
+| Median | 7.00 |
+| Q3 (75%) | 12.50 |
+| Max | 18 |
 
 ## Mark distribution
 
-![Mark distribution](charts/distribution.png)
+![Mark distribution](assets/distribution.png)
 
 ## Cumulative mark distribution
 
-![Cumulative mark distribution](charts/cumulative.png)
+![Cumulative mark distribution](assets/cumulative.png)
 
-## Marks per question
+## Marks per criterion
 
-![Marks per question](charts/boxplot.png)
+![Marks per criterion](assets/boxplot.png)
 
-## Question mark correlations
+## Criterion mark correlations
 
-![Question mark correlations](charts/correlation.png)
+![Criterion mark correlations](assets/correlation.png)
 
-## Per-question breakdown
+## Per-criterion breakdown
 
 ### q1(a)
 
@@ -211,7 +210,7 @@ cat scholia/summary.md
 - Correct method but missing the boundary case: 1 student(s) (7 marks)
 ```
 
-The charts referenced above are saved in `scholia/charts/`. For this
+The charts referenced above are saved in `scholia/assets/`. For this
 cohort of three students they look like this.
 
 **Mark distribution** (`distribution.png`):
@@ -222,17 +221,68 @@ cohort of three students they look like this.
 
 ![Cumulative mark distribution](../img/example_cumulative.png)
 
-**Marks per question** (`boxplot.png`):
+**Marks per criterion** (`boxplot.png`):
 
-![Marks per question](../img/example_boxplot.png)
+![Marks per criterion](../img/example_boxplot.png)
 
-**Question mark correlations** (`correlation.png`):
+**Criterion mark correlations** (`correlation.png`):
 
-![Question mark correlations](../img/example_correlation.png)
+![Criterion mark correlations](../img/example_correlation.png)
 
 With only three students the correlation is not statistically meaningful,
 but with a full cohort it shows whether students who scored well on one
-question tended to score well on others.
+criterion tended to score well on others.
+
+## Adding grade bands (optional)
+
+Grade bands are entirely optional. If your institution has grade
+boundaries, add a `bands` key to `scheme.yaml` before running
+`scholia mark`. Omitting it leaves all output unchanged.
+
+```yaml
+bands:
+  - name: Fail
+    min: 0
+  - name: Pass
+    min: 40
+  - name: First class
+    min: 70
+
+q1(a):
+  a:
+    marks: 0
+    feedback: "Did not attempt the question."
+  ...
+```
+
+Each entry names a band and gives its inclusive lower threshold. With
+bands defined, `scholia mark` adds two things to the output.
+
+**Grade-band table in `summary.md`.**  A breakdown of how many
+students fall in each band appears after the summary statistics:
+
+```markdown
+## Grade bands
+
+| Band        | Range | Students | %     |
+|-------------|-------|----------|-------|
+| Fail        | 0–39  | 3        | 15.0% |
+| Pass        | 40–69 | 12       | 60.0% |
+| First class | ≥ 70  | 5        | 25.0% |
+```
+
+**Dashed lines on the distribution and cumulative charts.**  A
+vertical dashed line labelled with the band name is drawn at each
+threshold, making it easy to see where the cohort sits relative to
+the grade boundaries.
+
+**Mark distribution with bands:**
+
+![Mark distribution with bands](../img/example_distribution_bands.png)
+
+**Cumulative mark distribution with bands:**
+
+![Cumulative mark distribution with bands](../img/example_cumulative_bands.png)
 
 ## Adjusting the scheme
 
