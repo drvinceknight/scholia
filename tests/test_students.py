@@ -139,7 +139,7 @@ def test_save_includes_note_column(tmp_path):
     )
     out_path = tmp_path / "out.csv"
     students.save(out_path)
-    content = out_path.read_text()
+    content = out_path.read_text(encoding="utf-8")
     assert "note" in content
     assert "Excellent effort." in content
 

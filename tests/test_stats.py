@@ -57,7 +57,7 @@ def test_summary_no_complete_students(tmp_path, scheme, empty_roster_path):
     students = Students.load(empty_roster_path)
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "No complete marks yet." in content
     assert "## Per-criterion breakdown" in content
 
@@ -65,7 +65,7 @@ def test_summary_no_complete_students(tmp_path, scheme, empty_roster_path):
 def test_summary_two_students_no_charts(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "| Count | 2 |" in content
     assert "| Mean | 12.00 |" in content
     assert "| Std dev |" in content
@@ -76,7 +76,7 @@ def test_summary_two_students_all_charts(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     charts_dir = tmp_path / "charts"
     generate_summary(two_student_roster, scheme, output, charts_dir)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "## Mark distribution" in content
     assert "## Cumulative mark distribution" in content
     assert "## Marks per criterion" in content
@@ -133,7 +133,7 @@ def test_summary_one_student_stdev_zero(tmp_path, scheme, one_student_path):
     students = Students.load(one_student_path)
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "| Count | 1 |" in content
     assert "| Std dev | 0.00 |" in content
 
@@ -142,14 +142,14 @@ def test_summary_empty_category_assignment(tmp_path, scheme, partial_roster_path
     students = Students.load(partial_roster_path)
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "No complete marks yet." in content
 
 
 def test_summary_per_question_breakdown(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "### q1(a)" in content
     assert "### q1(b)" in content
     assert "Perfect solution: 1 student(s) (8 marks)" in content
@@ -183,7 +183,7 @@ def test_summary_same_mark_different_feedback(tmp_path):
 
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
 
     # Both students scored 8 but for distinct reasons: each appears separately.
     assert "Correct but concise: 1 student(s) (8 marks)" in content
@@ -253,7 +253,7 @@ def test_summary_with_bands(tmp_path, banded_scheme, two_student_roster):
     # s001 total=18 (First class >=15), s002 total=6 (Fail 0-9)
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, banded_scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "## Grade bands" in content
     assert "| Fail | 0–9 | 1 | 50.0% |" in content
     assert "| Pass | 10–14 | 0 | 0.0% |" in content
@@ -271,5 +271,5 @@ def test_summary_with_bands_and_charts(tmp_path, banded_scheme, two_student_rost
 def test_summary_no_bands_no_table(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, scheme, output)
-    content = output.read_text()
+    content = output.read_text(encoding="utf-8")
     assert "## Grade bands" not in content

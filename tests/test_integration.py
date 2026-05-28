@@ -36,7 +36,11 @@ def test_full_workflow_sorted_headers(tmp_path, monkeypatch):
         yaml.dump(_SCHEME, file_handle, sort_keys=False)
 
     assert runner.invoke(app, ["update"]).exit_code == 0
-    header = (tmp_path / "scholia" / "students.csv").read_text().splitlines()[0]
+    header = (
+        (tmp_path / "scholia" / "students.csv")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
     assert header == "student_id,q1,q2,note"
 
     with open(tmp_path / "scholia" / "students.csv", "w", newline="") as file_handle:
@@ -48,18 +52,18 @@ def test_full_workflow_sorted_headers(tmp_path, monkeypatch):
     result = runner.invoke(app, ["mark"])
     assert result.exit_code == 0
 
-    alice = (tmp_path / "scholia" / "feedback" / "s001.md").read_text()
+    alice = (tmp_path / "scholia" / "feedback" / "s001.md").read_text(encoding="utf-8")
     assert "# Feedback: s001" in alice
     assert "**Total marks:** 15" in alice  # q1=10 + q2=5
 
-    bob = (tmp_path / "scholia" / "feedback" / "s002.md").read_text()
+    bob = (tmp_path / "scholia" / "feedback" / "s002.md").read_text(encoding="utf-8")
     assert "**Total marks:** 5" in bob  # q1=0 + q2=5
 
-    summary = (tmp_path / "scholia" / "summary.md").read_text()
+    summary = (tmp_path / "scholia" / "summary.md").read_text(encoding="utf-8")
     assert "| Count | 2 |" in summary
     assert "| Mean | 10.00 |" in summary
 
-    marks_csv = (tmp_path / "scholia" / "marks.csv").read_text()
+    marks_csv = (tmp_path / "scholia" / "marks.csv").read_text(encoding="utf-8")
     assert "s001,15" in marks_csv
     assert "s002,5" in marks_csv
 
@@ -77,5 +81,9 @@ def test_full_workflow_preserve_order(tmp_path, monkeypatch):
         yaml.dump(_SCHEME, file_handle, sort_keys=False)
 
     assert runner.invoke(app, ["update", "--preserve-order"]).exit_code == 0
-    header = (tmp_path / "scholia" / "students.csv").read_text().splitlines()[0]
+    header = (
+        (tmp_path / "scholia" / "students.csv")
+        .read_text(encoding="utf-8")
+        .splitlines()[0]
+    )
     assert header == "student_id,q2,q1,note"
