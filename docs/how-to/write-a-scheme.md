@@ -98,7 +98,7 @@ count and percentage of completely marked students in each band:
 
 ```
 | Band        | Range | Students | %     |
-|-------------|-------|----------|-------|
+| ----------- | ----- | -------- | ----- |
 | Fail        | 0–39  | 3        | 15.0% |
 | Pass        | 40–69 | 12       | 60.0% |
 | First class | ≥ 70  | 5        | 25.0% |

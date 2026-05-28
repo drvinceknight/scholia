@@ -66,9 +66,9 @@ def test_summary_two_students_no_charts(tmp_path, scheme, two_student_roster):
     output = tmp_path / "summary.md"
     generate_summary(two_student_roster, scheme, output)
     content = output.read_text(encoding="utf-8")
-    assert "| Count | 2 |" in content
-    assert "| Mean | 12.00 |" in content
-    assert "| Std dev |" in content
+    assert "| Count     | 2     |" in content
+    assert "| Mean      | 12.00 |" in content
+    assert "| Std dev" in content
     assert "charts" not in content
 
 
@@ -134,8 +134,8 @@ def test_summary_one_student_stdev_zero(tmp_path, scheme, one_student_path):
     output = tmp_path / "summary.md"
     generate_summary(students, scheme, output)
     content = output.read_text(encoding="utf-8")
-    assert "| Count | 1 |" in content
-    assert "| Std dev | 0.00 |" in content
+    assert "| Count     | 1     |" in content
+    assert "| Std dev   | 0.00  |" in content
 
 
 def test_summary_empty_category_assignment(tmp_path, scheme, partial_roster_path):
@@ -189,8 +189,8 @@ def test_summary_same_mark_different_feedback(tmp_path):
     assert "Correct but concise: 1 student(s) (8 marks)" in content
     assert "Correct but verbose: 1 student(s) (8 marks)" in content
     # Total marks are still computed correctly.
-    assert "| Count | 2 |" in content
-    assert "| Mean | 8.00 |" in content
+    assert "| Count     | 2     |" in content
+    assert "| Mean      | 8.00  |" in content
 
 
 def test_generate_marks_csv_complete(tmp_path, scheme, two_student_roster):
@@ -255,9 +255,9 @@ def test_summary_with_bands(tmp_path, banded_scheme, two_student_roster):
     generate_summary(two_student_roster, banded_scheme, output)
     content = output.read_text(encoding="utf-8")
     assert "## Grade bands" in content
-    assert "| Fail | 0–9 | 1 | 50.0% |" in content
-    assert "| Pass | 10–14 | 0 | 0.0% |" in content
-    assert "| First class | ≥ 15 | 1 | 50.0% |" in content
+    assert "| Fail        | 0–9   | 1        | 50.0% |" in content
+    assert "| Pass        | 10–14 | 0        | 0.0%  |" in content
+    assert "| First class | ≥ 15  | 1        | 50.0% |" in content
 
 
 def test_summary_with_bands_and_charts(tmp_path, banded_scheme, two_student_roster):
