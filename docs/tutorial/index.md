@@ -169,15 +169,15 @@ cat scholia/summary.md
 # Marking summary
 
 | Statistic | Value |
-|-----------|-------|
-| Count | 3 |
-| Mean | 10.33 |
-| Std dev | 6.66 |
-| Min | 6 |
-| Q1 (25%) | 6.50 |
-| Median | 7.00 |
-| Q3 (75%) | 12.50 |
-| Max | 18 |
+| --------- | ----- |
+| Count     | 3     |
+| Mean      | 10.33 |
+| Std dev   | 6.66  |
+| Min       | 6     |
+| Q1 (25%)  | 6.50  |
+| Median    | 7.00  |
+| Q3 (75%)  | 12.50 |
+| Max       | 18    |
 
 ## Mark distribution
 
@@ -265,7 +265,7 @@ students fall in each band appears after the summary statistics:
 ## Grade bands
 
 | Band        | Range | Students | %     |
-|-------------|-------|----------|-------|
+| ----------- | ----- | -------- | ----- |
 | Fail        | 0–39  | 3        | 15.0% |
 | Pass        | 40–69 | 12       | 60.0% |
 | First class | ≥ 70  | 5        | 25.0% |
