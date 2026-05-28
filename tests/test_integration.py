@@ -60,8 +60,8 @@ def test_full_workflow_sorted_headers(tmp_path, monkeypatch):
     assert "**Total marks:** 5" in bob  # q1=0 + q2=5
 
     summary = (tmp_path / "scholia" / "summary.md").read_text(encoding="utf-8")
-    assert "| Count | 2 |" in summary
-    assert "| Mean | 10.00 |" in summary
+    assert "| Count     | 2     |" in summary
+    assert "| Mean      | 10.00 |" in summary
 
     marks_csv = (tmp_path / "scholia" / "marks.csv").read_text(encoding="utf-8")
     assert "s001,15" in marks_csv

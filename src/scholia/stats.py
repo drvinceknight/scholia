@@ -128,15 +128,23 @@ def _generate_correlation_chart(
     ]
 
 
+def _md_table(headers: list[str], rows: list[list[str]]) -> list[str]:
+    widths = [len(h) for h in headers]
+    for row in rows:
+        for col_idx, cell in enumerate(row):
+            widths[col_idx] = max(widths[col_idx], len(cell))
+    sep = "| " + " | ".join("-" * w for w in widths) + " |"
+
+    def fmt(cells: list[str]) -> str:
+        return "| " + " | ".join(c.ljust(widths[i]) for i, c in enumerate(cells)) + " |"
+
+    return [fmt(headers), sep] + [fmt(row) for row in rows]
+
+
 def _generate_band_table(all_totals: list[int], bands: list[Band]) -> list[str]:
     sorted_bands = sorted(bands, key=lambda b: b.min)
     count = len(all_totals)
-    lines = [
-        "## Grade bands",
-        "",
-        "| Band | Range | Students | % |",
-        "|------|-------|----------|---|",
-    ]
+    rows: list[list[str]] = []
     for idx, band in enumerate(sorted_bands):
         lower = band.min
         upper = sorted_bands[idx + 1].min if idx + 1 < len(sorted_bands) else None
@@ -147,9 +155,12 @@ def _generate_band_table(all_totals: list[int], bands: list[Band]) -> list[str]:
             range_str = f"{lower}–{upper - 1}"
             band_count = sum(1 for t in all_totals if lower <= t < upper)
         pct = 100 * band_count / count
-        lines.append(f"| {band.name} | {range_str} | {band_count} | {pct:.1f}% |")
-    lines.append("")
-    return lines
+        rows.append([band.name, range_str, str(band_count), f"{pct:.1f}%"])
+    return (
+        ["## Grade bands", ""]
+        + _md_table(["Band", "Range", "Students", "%"], rows)
+        + [""]
+    )
 
 
 def _generate_charts(
@@ -230,19 +241,17 @@ def generate_summary(
             q1, median, q3 = statistics.quantiles(all_totals, n=4)
         else:
             q1 = median = q3 = float(all_totals[0])
-        lines += [
-            "| Statistic | Value |",
-            "|-----------|-------|",
-            f"| Count | {count} |",
-            f"| Mean | {mean:.2f} |",
-            f"| Std dev | {std:.2f} |",
-            f"| Min | {minimum} |",
-            f"| Q1 (25%) | {q1:.2f} |",
-            f"| Median | {median:.2f} |",
-            f"| Q3 (75%) | {q3:.2f} |",
-            f"| Max | {maximum} |",
-            "",
+        stat_rows = [
+            ["Count", str(count)],
+            ["Mean", f"{mean:.2f}"],
+            ["Std dev", f"{std:.2f}"],
+            ["Min", str(minimum)],
+            ["Q1 (25%)", f"{q1:.2f}"],
+            ["Median", f"{median:.2f}"],
+            ["Q3 (75%)", f"{q3:.2f}"],
+            ["Max", str(maximum)],
         ]
+        lines += _md_table(["Statistic", "Value"], stat_rows) + [""]
         if bands:
             lines += _generate_band_table(all_totals, bands)
         if charts_dir is not None:
