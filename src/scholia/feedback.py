@@ -40,7 +40,9 @@ def generate_student_feedback(
     if student.note:
         lines += ["## Note", "", student.note, ""]
 
-    (feedback_dir / f"{student.student_id}.md").write_text("\n".join(lines))
+    (feedback_dir / f"{student.student_id}.md").write_text(
+        "\n".join(lines), encoding="utf-8"
+    )
 
 
 def generate_all_feedback(

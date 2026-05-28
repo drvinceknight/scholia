@@ -268,7 +268,7 @@ def generate_summary(
             lines.append(f"- {label}: {count} student(s) ({category.marks} marks)")
         lines.append("")
 
-    output_path.write_text("\n".join(lines))
+    output_path.write_text("\n".join(lines), encoding="utf-8")
 
 
 def generate_marks_csv(
